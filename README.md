@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI Presentation Generator
 
 The AI Presentation Generator is a powerful, single-page application that leverages the power of the Google Gemini API to instantly transform a simple text prompt into a structured, editable, and downloadable PowerPoint presentation (PPTX).
@@ -108,3 +109,6 @@ The UI can be changed only the core logic should remain same
 Extra features can be added
 
 Exact template match is not necessary
+=======
+# Ai-PPT-Generator
+>>>>>>> 85fc893f5cfcb91d4f77db06a821920148bc397c
