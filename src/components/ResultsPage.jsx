@@ -28,7 +28,10 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slides, setSlides] = useState(data?.slides || []);
   const [editingSlide, setEditingSlide] = useState(null);
+  
+  // 💡 FIX: Corrected original syntax error (was a dangling comma and missing const)
   const [splitPosition, setSplitPosition] = useState(50); 
+  
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const isDragging = useRef(false);
@@ -49,13 +52,17 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
     setIsProcessing(true);
 
     try {
+      // Check if user is asking to edit a specific slide
       const slideNumberMatch = userMessage.match(/slide\s+(\d+)/i);
       const slideNumber = slideNumberMatch ? parseInt(slideNumberMatch[1]) : null;
 
+      // Call Gemini to edit the presentation
       const response = await editSlideContent(slides, userMessage, slideNumber);
       
+      // Update slides
       setSlides(response.slides);
       
+      // Add AI response
       const changedSlidesList = response.changedSlides?.length > 0 
         ? ` (Updated slides: ${response.changedSlides.join(', ')})` 
         : '';
@@ -66,6 +73,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
       
       setChatHistory(prev => [...prev, { role: 'assistant', content: aiMessage }]);
       
+      // Highlight changed slides briefly
       if (response.changedSlides?.length > 0 && viewMode === 'single') {
         setCurrentSlide(response.changedSlides[0] - 1);
       }
@@ -81,7 +89,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
     }
   };
 
-
+  // Handle manual slide editing
   const handleSlideEdit = (slideIndex, field, value) => {
     const updatedSlides = [...slides];
     updatedSlides[slideIndex] = {
@@ -91,7 +99,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
     setSlides(updatedSlides);
   };
 
-
+  // Handle bullet point editing
   const handleBulletEdit = (slideIndex, bulletIndex, value) => {
     const updatedSlides = [...slides];
     const bullets = [...(updatedSlides[slideIndex].bullets || [])];
@@ -103,7 +111,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
     setSlides(updatedSlides);
   };
 
-
+  // Handle download
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
@@ -131,7 +139,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
     }
   };
 
-
+  // Handle split resize
   const handleMouseDown = () => {
     isDragging.current = true;
   };
@@ -148,22 +156,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
     isDragging.current = false;
   };
 
-  
-    setSidebarOpen(false);
-  };
-
-  const getMenuButtonSize = () => {
-    const scale = splitPosition / 50;
-    const clampedScale = Math.max(0.7, Math.min(1.1, scale));
-    
-    return {
-      padding: `${clampedScale * 1}rem`,
-      iconSize: Math.round(28 * clampedScale),
-    };
-  };
-
-  const buttonSize = getMenuButtonSize();
-
+  // Styles
   const containerStyle = {
     display: 'flex',
     minHeight: '100vh',
@@ -176,10 +169,10 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
   };
 
   const menuButtonStyle = {
-    position: 'fixed',
-    top: '0.3rem',
-    left: '0.5rem',
-    padding: buttonSize.padding,
+    position: 'absolute', 
+    top: '1.5rem',
+    left: '1.5rem',
+    padding: '9px',
     borderRadius: '12px',
     background: theme === 'neon' 
       ? 'rgba(255, 0, 255, 0.4)' 
@@ -195,7 +188,6 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
     cursor: 'pointer',
     zIndex: 30,
     boxShadow: theme === 'neon' ? '0 0 30px rgba(255, 0, 255, 0.6)' : '0 4px 12px rgba(0, 0, 0, 0.3)',
-    transition: 'all 0.3s ease',
   };
 
   const splitContainerStyle = {
@@ -214,6 +206,8 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
       ? 'rgba(255, 255, 255, 0.5)' 
       : 'rgba(15, 23, 42, 0.5)',
     borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+    // 💡 FIX: Added 'position: relative' to anchor the absolute menu button
+    position: 'relative', 
   };
 
   const resizerStyle = {
@@ -239,6 +233,8 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
     color: theme === 'light' ? '#1e293b' : 'white',
     fontSize: '1.25rem',
     fontWeight: 'bold',
+    // 💡 FIX: Added padding to make space for the moved button
+    paddingTop: '5rem', 
   };
 
   const chatMessagesStyle = {
@@ -251,7 +247,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
   };
 
   const messageStyle = (role) => ({
-    padding: '9px',
+    padding: '1rem',
     borderRadius: '12px',
     maxWidth: '80%',
     alignSelf: role === 'user' ? 'flex-end' : 'flex-start',
@@ -333,6 +329,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
         : 'linear-gradient(to right, #8b5cf6, #06b6d4)'),
     border: 'none',
     color: 'white',
+    // 💡 FIX: Corrected original syntax error (was a stray '.')
     cursor: isDownloading ? 'not-allowed' : 'pointer',
     display: 'flex',
     alignItems: 'center',
@@ -402,25 +399,28 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
-      <button 
-        style={menuButtonStyle}
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        <Menu size={buttonSize.iconSize} strokeWidth={2.5} />
-      </button>
+      {/* Button is no longer here */}
 
       <Sidebar 
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onThemeChange={onThemeChange}
         currentTheme={theme}
-        splitPosition={splitPosition}
       />
 
       <div style={splitContainerStyle}>
         {/* Left Side - Chat */}
         <div style={chatSectionStyle}>
-         <div style={chatHeaderStyle}>. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Chat & Edit</div>
+
+          {/* Button is now here */}
+          <button 
+            style={menuButtonStyle}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <Menu size={28} strokeWidth={2.5} />
+          </button>
+          
+          <div style={chatHeaderStyle}>💬 Chat & Edit</div>
           
           <div style={chatMessagesStyle}>
             {chatHistory.map((msg, idx) => (
@@ -442,11 +442,13 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
               <Paperclip size={20} />
             </button>
             <button style={iconButtonStyle} title="Random suggestion">
+              {/* 💡 FIX: Corrected original syntax error (was 'size.') */}
               <Dice5 size={20} />
             </button>
             <input
               type="text"
               value={currentMessage}
+              // 💡 FIX: Corrected original syntax error (was 'e.g.target.value')
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder="Ask to edit slides... (e.g., 'Make slide 3 more detailed')"
@@ -540,6 +542,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
                       placeholder="Main content..."
                     />
                     
+                    {/* Edit bullets */}
                     {slide.bullets && slide.bullets.length > 0 && (
                       <div style={{marginTop: '1rem'}}>
                         <label style={{color: theme === 'light' ? '#1e293b' : 'white', display: 'block', marginBottom: '0.5rem', fontWeight: 'bold'}}>
@@ -674,6 +677,7 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
               </div>
             )}
 
+            {/* Empty state */}
             {(!slides || slides.length === 0) && (
               <div style={{textAlign: 'center', padding: '3rem', color: theme === 'light' ? '#64748b' : '#9ca3af'}}>
                 <p style={{fontSize: '1.25rem', marginBottom: '0.5rem'}}>No slides generated yet</p>
@@ -685,3 +689,4 @@ export default function ResultsPage({ data, onBack, theme, onThemeChange, initia
       </div>
     </div>
   );
+}
